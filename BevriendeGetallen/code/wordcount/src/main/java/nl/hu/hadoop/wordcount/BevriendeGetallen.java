@@ -27,9 +27,11 @@ public class BevriendeGetallen {
 		job.setMapperClass(BevriendeGetallenMapper.class);
 		job.setReducerClass(BevriendeGetallenReducer.class);
 		job.setInputFormatClass(TextInputFormat.class);
-		job.setOutputKeyClass(Text.class);
-		//job.setOutputValueClass(IntWritable.class);
-		job.setOutputValueClass(Text.class);
+		//job.setOutputKeyClass(Text.class);
+		//job.setOutputValueClass(Text.class);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(IntWritable.class);
+
 
 		job.waitForCompletion(true);
 	}
@@ -42,15 +44,25 @@ class BevriendeGetallenMapper extends Mapper<LongWritable, Text, IntWritable, In
 		String[]numbers = value.toString().split("\\s");
 
 		int i = 0;
+		int quantityOfNumbers = numbers.length;
 		// loop through all the numbers
-		while (i < numbers.length) {
-			context.write(new IntWritable(Integer.parseInt(numbers[i])), new IntWritable(Integer.parseInt(numbers[i+1])));
+		while (i < quantityOfNumbers) {
+
+			int nextNumber = 0;
+
+			// make sure there is a next number
+			if(i + 1 < quantityOfNumbers){
+				// we can now safely do "i+1" without "ArrayOutOfBounds"
+				nextNumber = Integer.parseInt(numbers[i+1]);
+			}
+
+			context.write(new IntWritable(Integer.parseInt(numbers[i])), new IntWritable(nextNumber));
 			i++;
 		}
 	}
 }
 
-class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, Text, IntWritable> {
 
 	private DivisorCalculator divisorCalculator = new DivisorCalculator();
 
@@ -63,10 +75,11 @@ class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, IntWrit
 			ArrayList<Integer> divisors = divisorCalculator.calculateDivisors(possibleFriendNumber);
 
 			int sumOfDivisors = calculateSumOfDivisors(divisors);
-
+			String friendNumberAnswer = "\tis geen bevriend nummer van -->\t";
 			if(sumOfDivisors == keyNumber){
-				context.write(key, new IntWritable(possibleFriendNumber));
+				friendNumberAnswer = "\tis een bevriend nummer van -->\t";
 			}
+			context.write(new Text(keyNumber + friendNumberAnswer), new IntWritable(possibleFriendNumber));
 		}
 
 	}
