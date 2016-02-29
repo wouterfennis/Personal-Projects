@@ -2,7 +2,7 @@ package main.java.nl.hu.hadoop.wordcount;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
@@ -39,49 +39,15 @@ public class BevriendeGetallen {
 
 class BevriendeGetallenMapper extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
 
-	public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
-		// retrieve the words from the line
-		String[]numbers = value.toString().split("\\s");
-
-		int i = 0;
-		int quantityOfNumbers = numbers.length;
-		// loop through all the numbers
-		while (i < quantityOfNumbers) {
-
-			int nextNumber = 0;
-
-			// make sure there is a next number
-			if(i + 1 < quantityOfNumbers){
-				// we can now safely do "i+1" without "ArrayOutOfBounds"
-				nextNumber = Integer.parseInt(numbers[i+1]);
-			}
-
-			context.write(new IntWritable(Integer.parseInt(numbers[i])), new IntWritable(nextNumber));
-			i++;
-		}
-	}
-}
-
-class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, Text, IntWritable> {
-
 	private DivisorCalculator divisorCalculator = new DivisorCalculator();
 
-	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+	public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
 
-		int keyNumber = Integer.parseInt(key.toString());
+		int number = Integer.parseInt(value.toString());
+		ArrayList<Integer> divisors = divisorCalculator.calculateDivisors(number);
+		int sumOfDivisors = calculateSumOfDivisors(divisors);
 
-		for (IntWritable value : values) {
-			int possibleFriendNumber = Integer.parseInt(value.toString());
-			ArrayList<Integer> divisors = divisorCalculator.calculateDivisors(possibleFriendNumber);
-
-			int sumOfDivisors = calculateSumOfDivisors(divisors);
-			String friendNumberAnswer = "\tis geen bevriend nummer van -->\t";
-			if(sumOfDivisors == keyNumber){
-				friendNumberAnswer = "\tis een bevriend nummer van -->\t";
-			}
-			context.write(new Text(keyNumber + friendNumberAnswer), new IntWritable(possibleFriendNumber));
-		}
-
+		context.write(new IntWritable(number), new IntWritable(sumOfDivisors));
 	}
 
 	private int calculateSumOfDivisors(ArrayList<Integer> divisors){
@@ -91,5 +57,25 @@ class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, Text, I
 			sumOfDivisors = sumOfDivisors + divisor;
 		}
 		return sumOfDivisors;
+	}
+}
+
+class BevriendeGetallenReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+
+	private HashMap<Integer, Integer> numbers = new HashMap();
+
+
+	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+
+		int keyNumber = Integer.parseInt(key.toString());
+		int sumOfDivisors = values.iterator().next().get();
+
+			if (numbers.containsKey(sumOfDivisors)) {
+				if (keyNumber == numbers.get(sumOfDivisors)) {
+					context.write(new IntWritable(sumOfDivisors), new IntWritable(keyNumber));
+				}
+			} else {
+				numbers.put(keyNumber, sumOfDivisors);
+			}
 	}
 }
