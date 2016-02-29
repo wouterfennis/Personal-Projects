@@ -45,6 +45,7 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 			for (String word : words) {
 				// first we convert the word to lower case characters
 				word.toLowerCase();
+				word.replaceAll("[^A-Za-z0-9 ]","");
 				// loop through every char of the word
 				int i = 0;
 				int wordLength = word.length();
@@ -73,14 +74,14 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 	private int[] occurences;
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-		occurences = new int[5];
-		String[] alfabet = {"r","a","b","e"," "};
+		occurences = new int[28];
+		final String[] ALPHABET = {"a","b","c","d","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","x"};
 
 
 		String nextCharactersNumber = "";
 
-		for (Text v : values) {
-			int index = Arrays.asList(alfabet).indexOf(v.toString());
+		for (Text letter : values) {
+			int index = Arrays.asList(ALPHABET).indexOf(letter.toString());
 			// if the character is not found the index will be '-1'
 			if(index != -1){
 				// increment the value at the right index
@@ -88,10 +89,14 @@ class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 			}
 
 		}
-
+		int totalOccurences = 0;
 		for(int occurence : occurences){
 			nextCharactersNumber = nextCharactersNumber + " " + occurence;
+			totalOccurences = totalOccurences + occurence;
 		}
+		nextCharactersNumber = nextCharactersNumber + " Total --> " + totalOccurences;
+
+
 		context.write(key, new Text(nextCharactersNumber));
 	}
 }
