@@ -2,7 +2,6 @@ package main.java.nl.hu.hadoop.wordcount;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
@@ -44,8 +43,7 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 			// loop through all the words
 			for (String word : words) {
 				// first we convert the word to lower case characters
-				word.toLowerCase();
-				word.replaceAll("[^A-Za-z0-9 ]","");
+				word = word.toLowerCase().replaceAll("[^A-Za-z0-9 ]","");
 				// loop through every char of the word
 				int i = 0;
 				int wordLength = word.length();
@@ -72,31 +70,71 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 }
 
 class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
-	private int[] occurences;
+	private int[] rowOccurences;
+	private int[] totalBottomOccurences = new int[26];
+	private boolean isAlphabetLinePrinted = false;
+	final static String[] ALPHABET = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+	final static String STANDARD_WHITESPACE = "    ";
+
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-		occurences = new int[28];
-		final String[] ALPHABET = {"a","b","c","d","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","x"};
-
-
+		rowOccurences = new int[26];
 		String nextCharactersNumber = "";
+
+		if(!isAlphabetLinePrinted){
+			String alphabetLine = "";
+			for(String letter : ALPHABET){
+				alphabetLine = alphabetLine + STANDARD_WHITESPACE + letter;
+			}
+			context.write(new Text(" "), new Text(alphabetLine));
+			isAlphabetLinePrinted = true;
+		}
 
 		for (Text letter : values) {
 			int index = Arrays.asList(ALPHABET).indexOf(letter.toString());
 			// if the character is not found the index will be '-1'
 			if(index != -1){
 				// increment the value at the right index
-				occurences[index] = occurences[index] + 1;
+				rowOccurences[index] = rowOccurences[index] + 1;
+				totalBottomOccurences[index] = totalBottomOccurences[index] + 1;
 			}
 
 		}
-		int totalOccurences = 0;
-		for(int occurence : occurences){
-			nextCharactersNumber = nextCharactersNumber + " " + occurence;
-			totalOccurences = totalOccurences + occurence;
+		int totalRowOccurences = 0;
+		for(int occurence : rowOccurences){
+			nextCharactersNumber = nextCharactersNumber + calculateWhitespace(occurence) + occurence;
+			totalRowOccurences = totalRowOccurences + occurence;
 		}
-		nextCharactersNumber = nextCharactersNumber + " Total --> " + totalOccurences;
+		nextCharactersNumber = nextCharactersNumber + calculateWhitespace(totalRowOccurences) + "|" + totalRowOccurences;
 
 
 		context.write(key, new Text(nextCharactersNumber));
+	}
+
+	public String calculateWhitespace(int number){
+		String whitespace = "";
+		if(number < 10){
+			// 4 whitespace
+			whitespace = STANDARD_WHITESPACE;
+		} else if (number < 100){
+			// 3 whitespace
+			whitespace = "   ";
+		} else if (number < 1000){
+			// 2 whitespace
+			whitespace = "  ";
+		} else if (number < 10000){
+			// 1 whitespace
+			whitespace = " ";
+		}
+		return whitespace;
+	}
+
+	@Override
+	protected void cleanup(Context context) throws IOException, InterruptedException {
+		String bottomTotals = "";
+		for(int totalBottomOccurence : totalBottomOccurences){
+			bottomTotals = bottomTotals + calculateWhitespace(totalBottomOccurence) + totalBottomOccurence;
+		}
+		context.write(new Text("------"), new Text(bottomTotals.replaceAll(".","-")));
+		context.write(new Text(" "), new Text(bottomTotals));
 	}
 }
