@@ -11,11 +11,11 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.*;
 import org.apache.hadoop.mapreduce.lib.output.*;
 
-public class LetterFrequency {
+public class DictionaryPredictor {
 
 	public static void main(String[] args) throws Exception {
 		Job job = new Job();
-		job.setJarByClass(LetterFrequency.class);
+		job.setJarByClass(DictionaryPredictor.class);
 
 		// possible fix for empty output file
 		job.getConfiguration().set("mapreduce.ifile.readahead", "false");
@@ -23,8 +23,8 @@ public class LetterFrequency {
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		job.setMapperClass(LetterFrequencyMapper.class);
-		job.setReducerClass(LetterFrequencyReducer.class);
+		job.setMapperClass(DictionaryPredictorMapper.class);
+		job.setReducerClass(DictionaryPredictorReducer.class);
 		job.setInputFormatClass(TextInputFormat.class);
 		job.setOutputKeyClass(Text.class);
 		//job.setOutputValueClass(IntWritable.class);
@@ -34,7 +34,7 @@ public class LetterFrequency {
 	}
 }
 
-class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
+class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
 		// retrieve the words from the line
@@ -69,7 +69,7 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 	}
 }
 
-class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
+class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
 	private int[] rowOccurences;
 	private int[] totalBottomOccurences = new int[26];
 	private boolean isAlphabetLinePrinted = false;
