@@ -15,8 +15,8 @@ public class DictionaryWordPredictor {
     final static String CSV_DELIMITER = ",";
     private ArrayList<Letter> letters = new ArrayList<Letter>();
 
-    public DictionaryWordPredictor() {
-
+    public DictionaryWordPredictor(String filePath) {
+        readLetterOccurrencesFromFile(filePath);
     }
 
     public ArrayList<Letter> readLetterOccurrencesFromFile(String filePath) {
