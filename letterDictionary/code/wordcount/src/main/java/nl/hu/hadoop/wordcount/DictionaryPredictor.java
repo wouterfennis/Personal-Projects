@@ -41,8 +41,8 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
         String[] words = value.toString().split("\\s");
 
         for (String word : words) {
-            // first we convert the word to lower case characters and replace any non-alphanumeric characters
-            word = word.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "");
+            // first we convert the word to lower case characters and replace any non-alphabet characters
+            word = word.toLowerCase().replaceAll("[^A-Za-z ]", "");
             context.write(new Text(value), new Text(word));
         }
     }
