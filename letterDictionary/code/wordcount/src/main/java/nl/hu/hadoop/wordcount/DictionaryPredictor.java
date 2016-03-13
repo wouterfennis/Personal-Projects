@@ -31,8 +31,6 @@ public class DictionaryPredictor {
         job.setOutputValueClass(Text.class);
 
         job.waitForCompletion(true);
-
-//        DictionaryWordPredictor testInstance = new DictionaryWordPredictor("/media/wouter/Extra/hadoop-2.7.2/letterfrequentie-ENGELS.txt");
     }
 }
 
@@ -42,9 +40,8 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
         // retrieve the words from the line
         String[] words = value.toString().split("\\s");
 
-        // loop through all the words
         for (String word : words) {
-            // first we convert the word to lower case characters
+            // first we convert the word to lower case characters and replace any non-alphanumeric characters
             word = word.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "");
             context.write(new Text(value), new Text(word));
         }
@@ -56,12 +53,13 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
     private DictionaryWordPredictor dictionaryWordPredictor = new DictionaryWordPredictor(LETTERFREQUENCY_FILE_PATH);
 
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        // correctLineChance starts at 1.0 because if it would be 0.0 then you couldn't multiply it with anything
         double correctLineChance = 1;
         for(Text word : values) {
             double wordChance = dictionaryWordPredictor.predict(word.toString());
             correctLineChance = correctLineChance * wordChance;
         }
-        // convert to percentage
+        // convert chance to percentage
         correctLineChance = correctLineChance * 100;
         
         context.write(key, new Text(correctLineChance + "%"));
@@ -69,11 +67,6 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
 
 /*	@Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
-		String bottomTotals = "";
-		for(int totalBottomOccurence : totalBottomOccurences){
-			bottomTotals = bottomTotals + calculateWhitespace(totalBottomOccurence) + totalBottomOccurence;
-		}
-		context.write(new Text("------"), new Text(bottomTotals.replaceAll(".","-")));
-		context.write(new Text(" "), new Text(bottomTotals));
+		context.write(new Text(" "), new Text(" "));
 	}*/
 }

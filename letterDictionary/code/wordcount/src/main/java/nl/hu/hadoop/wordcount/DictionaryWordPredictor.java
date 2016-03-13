@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Created by woute on 12-03-16.
+ * Created by Wouter Fennis on 12-03-16.
  */
 public class DictionaryWordPredictor {
 
@@ -20,20 +20,19 @@ public class DictionaryWordPredictor {
     }
 
     public ArrayList<Letter> readLetterOccurrencesFromFile(String filePath) {
-        BufferedReader br;
+        BufferedReader bufferedReader;
         try {
-            br = new BufferedReader(new FileReader(filePath));
+            bufferedReader = new BufferedReader(new FileReader(filePath));
 
             try {
-                String line = br.readLine();
+                String line = bufferedReader.readLine();
                 while (line != null) {
                     Scanner lineScanner = new Scanner(line).useDelimiter(CSV_DELIMITER);
                     char letterCharacter = lineScanner.next().charAt(0);
-                    System.out.println("letterCharacter");
-                    System.out.println(letterCharacter);
                     int[] followingLetterOccurrences = new int[26];
                     int totalLetterOccurrence = 0;
                     int indexCounter = 0;
+
                     while (lineScanner.hasNext()) {
 
                         int Occurrence = Integer.parseInt(lineScanner.next());
@@ -46,7 +45,7 @@ public class DictionaryWordPredictor {
                     }
                     Letter newLetter = new Letter(letterCharacter, totalLetterOccurrence, followingLetterOccurrences);
                     letters.add(newLetter);
-                    line = br.readLine();
+                    line = bufferedReader.readLine();
                 }
             } catch (java.io.IOException error) {
                 System.out.println("Het inlezen van een regel van het bestand is mislukt!");
@@ -58,18 +57,13 @@ public class DictionaryWordPredictor {
     }
 
     public double predict(String word) {
-        double wordChance = 1;
-        System.out.println("Het woord:");
-        System.out.println(word);
+        // wordChance starts at 1.0 because if it would be 0.0 then you couldn't multiply it with anything
+        double wordChance = 1.0;
 
         for (int i = 0; i < word.length(); i++) {
             if (i + 1 < word.length()) {
                 char firstCharacter = word.charAt(i);
                 char nextCharacter = word.charAt(i + 1);
-                System.out.println("firstCharacter");
-                System.out.println(firstCharacter);
-                System.out.println("nextCharacter");
-                System.out.println(nextCharacter);
                 int characterIndex = searchForCharacterIndex(nextCharacter);
 
                 Letter letter = searchForLetterObject(firstCharacter);
@@ -85,10 +79,7 @@ public class DictionaryWordPredictor {
     public Letter searchForLetterObject(char letterCharacter) {
         Letter wantedLetter = null;
         for (Letter possibleLetter : letters) {
-            System.out.println("possible match:");
-            System.out.println("|||" + possibleLetter.getLetterCharacter() + "|||||" + letterCharacter + "|||||");
             if (possibleLetter.getLetterCharacter() == letterCharacter) {
-                System.out.println("Its a match:");
                 wantedLetter = possibleLetter;
             }
         }
@@ -96,6 +87,7 @@ public class DictionaryWordPredictor {
     }
 
     public int searchForCharacterIndex(char character){
+        // -1 stands for "not found"
         int characterIndex = -1;
 
         for(int i = 0; i< ALPHABET.length; i++){

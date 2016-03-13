@@ -7,17 +7,17 @@ public class Letter {
 
     private char letterCharacter;
     private int totalLetterOccurrence;
-    private int[] followingLetterOccurrence;
+    private int[] followingLetterOccurrences;
 
-    public Letter(char letterCharacter, int totalLetterOccurrence, int[] followingLetterOccurrence) {
+    public Letter(char letterCharacter, int totalLetterOccurrence, int[] followingLetterOccurrences) {
         this.letterCharacter = letterCharacter;
         this.totalLetterOccurrence = totalLetterOccurrence;
-        this.followingLetterOccurrence = followingLetterOccurrence;
+        this.followingLetterOccurrences = followingLetterOccurrences;
     }
 
     public double calculateFollowingLetterChance(int followingLetterIndex) {
         double chance = 0;
-        double followingLetterOccurence = followingLetterOccurrence[followingLetterIndex];
+        double followingLetterOccurence = followingLetterOccurrences[followingLetterIndex];
 
         if (followingLetterOccurence != 0) {
             chance = followingLetterOccurence / ((double)totalLetterOccurrence);
@@ -41,11 +41,11 @@ public class Letter {
         this.totalLetterOccurrence = totalLetterOccurrence;
     }
 
-    public int[] getFollowingLetterOccurrence() {
-        return followingLetterOccurrence;
+    public int[] getFollowingLetterOccurrences() {
+        return followingLetterOccurrences;
     }
 
-    public void setFollowingLetterOccurrence(int[] followingLetterOccurrence) {
-        this.followingLetterOccurrence = followingLetterOccurrence;
+    public void setFollowingLetterOccurrences(int[] followingLetterOccurrences) {
+        this.followingLetterOccurrences = followingLetterOccurrences;
     }
 }
