@@ -5,11 +5,11 @@ package main.java.nl.hu.hadoop.wordcount;
  */
 public class Letter {
 
-    private String letterCharacter;
+    private char letterCharacter;
     private int totalLetterOccurrence;
     private int[] followingLetterOccurrence;
 
-    public Letter(String letterCharacter, int totalLetterOccurrence, int[] followingLetterOccurrence) {
+    public Letter(char letterCharacter, int totalLetterOccurrence, int[] followingLetterOccurrence) {
         this.letterCharacter = letterCharacter;
         this.totalLetterOccurrence = totalLetterOccurrence;
         this.followingLetterOccurrence = followingLetterOccurrence;
@@ -17,19 +17,19 @@ public class Letter {
 
     public double calculateFollowingLetterChance(int followingLetterIndex) {
         double chance = 0;
-        int followingLetterOccurence = followingLetterOccurrence[followingLetterIndex];
+        double followingLetterOccurence = followingLetterOccurrence[followingLetterIndex];
 
         if (followingLetterOccurence != 0) {
-            chance = followingLetterOccurence / totalLetterOccurrence;
+            chance = followingLetterOccurence / ((double)totalLetterOccurrence);
         }
         return chance;
     }
 
-    public String getLetterCharacter() {
+    public char getLetterCharacter() {
         return letterCharacter;
     }
 
-    public void setLetterCharacter(String letterCharacter) {
+    public void setLetterCharacter(char letterCharacter) {
         this.letterCharacter = letterCharacter;
     }
 

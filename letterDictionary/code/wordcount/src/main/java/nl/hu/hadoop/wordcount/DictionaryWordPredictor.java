@@ -11,7 +11,7 @@ import java.util.Scanner;
  */
 public class DictionaryWordPredictor {
 
-    final static String[] ALPHABET = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    final static char[] ALPHABET = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
     final static String CSV_DELIMITER = ",";
     private ArrayList<Letter> letters = new ArrayList<Letter>();
 
@@ -28,7 +28,7 @@ public class DictionaryWordPredictor {
                 String line = br.readLine();
                 while (line != null) {
                     Scanner lineScanner = new Scanner(line).useDelimiter(CSV_DELIMITER);
-                    String letterCharacter = lineScanner.next();
+                    char letterCharacter = lineScanner.next().charAt(0);
                     System.out.println("letterCharacter");
                     System.out.println(letterCharacter);
                     int[] followingLetterOccurrences = new int[26];
@@ -59,12 +59,17 @@ public class DictionaryWordPredictor {
 
     public double predict(String word) {
         double wordChance = 1;
-        String[] CharactersFromWord = word.split("");
+        System.out.println("Het woord:");
+        System.out.println(word);
 
-        for (int i = 0; i < CharactersFromWord.length; i++) {
-            if (i + 1 < CharactersFromWord.length) {
-                String firstCharacter = CharactersFromWord[i];
-                String nextCharacter = CharactersFromWord[i + 1];
+        for (int i = 0; i < word.length(); i++) {
+            if (i + 1 < word.length()) {
+                char firstCharacter = word.charAt(i);
+                char nextCharacter = word.charAt(i + 1);
+                System.out.println("firstCharacter");
+                System.out.println(firstCharacter);
+                System.out.println("nextCharacter");
+                System.out.println(nextCharacter);
                 int characterIndex = searchForCharacterIndex(nextCharacter);
 
                 Letter letter = searchForLetterObject(firstCharacter);
@@ -77,21 +82,24 @@ public class DictionaryWordPredictor {
         return wordChance;
     }
 
-    public Letter searchForLetterObject(String letterCharacter) {
+    public Letter searchForLetterObject(char letterCharacter) {
         Letter wantedLetter = null;
         for (Letter possibleLetter : letters) {
-            if (possibleLetter.getLetterCharacter().equals(letterCharacter)) {
+            System.out.println("possible match:");
+            System.out.println("|||" + possibleLetter.getLetterCharacter() + "|||||" + letterCharacter + "|||||");
+            if (possibleLetter.getLetterCharacter() == letterCharacter) {
+                System.out.println("Its a match:");
                 wantedLetter = possibleLetter;
             }
         }
         return wantedLetter;
     }
 
-    public int searchForCharacterIndex(String character){
+    public int searchForCharacterIndex(char character){
         int characterIndex = -1;
 
         for(int i = 0; i< ALPHABET.length; i++){
-            if(ALPHABET[i].equals(character)){
+            if(ALPHABET[i] == character){
                 characterIndex = i;
             }
         }
