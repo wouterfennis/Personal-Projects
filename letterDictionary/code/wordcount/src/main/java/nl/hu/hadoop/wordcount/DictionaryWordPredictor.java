@@ -29,6 +29,8 @@ public class DictionaryWordPredictor {
                 while (line != null) {
                     Scanner lineScanner = new Scanner(line).useDelimiter(CSV_DELIMITER);
                     String letterCharacter = lineScanner.next();
+                    System.out.println("letterCharacter");
+                    System.out.println(letterCharacter);
                     int[] followingLetterOccurrences = new int[26];
                     int totalLetterOccurrence = 0;
                     int indexCounter = 0;

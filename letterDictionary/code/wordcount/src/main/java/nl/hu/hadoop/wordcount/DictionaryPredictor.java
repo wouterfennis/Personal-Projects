@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 public class DictionaryPredictor {
 
     public static void main(String[] args) throws Exception {
-        Job job = new Job();
+/*        Job job = new Job();
         job.setJarByClass(DictionaryPredictor.class);
 
         // possible fix for empty output file
@@ -30,7 +30,9 @@ public class DictionaryPredictor {
         //job.setOutputValueClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
 
-        job.waitForCompletion(true);
+        job.waitForCompletion(true);*/
+
+        DictionaryWordPredictor hoi = new DictionaryWordPredictor("C:\\Users\\woute\\git-repositories\\Personal-Projects\\letterDictionary\\data\\mapreduce\\alice.txt");
     }
 }
 
