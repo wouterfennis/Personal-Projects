@@ -42,6 +42,7 @@ public class DictionaryWordPredictor {
                         } else {
                             totalLetterOccurrence = Occurrence;
                         }
+                        indexCounter++;
                     }
                     Letter newLetter = new Letter(letterCharacter, totalLetterOccurrence, followingLetterOccurrences);
                     letters.add(newLetter);

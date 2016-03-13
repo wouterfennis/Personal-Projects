@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 public class DictionaryPredictor {
 
     public static void main(String[] args) throws Exception {
-/*        Job job = new Job();
+       Job job = new Job();
         job.setJarByClass(DictionaryPredictor.class);
 
         // possible fix for empty output file
@@ -30,9 +30,9 @@ public class DictionaryPredictor {
         //job.setOutputValueClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
 
-        job.waitForCompletion(true);*/
+        job.waitForCompletion(true);
 
-        DictionaryWordPredictor hoi = new DictionaryWordPredictor("C:\\Users\\woute\\git-repositories\\Personal-Projects\\letterDictionary\\data\\mapreduce\\alice.txt");
+//        DictionaryWordPredictor testInstance = new DictionaryWordPredictor("/media/wouter/Extra/hadoop-2.7.2/letterfrequentie-ENGELS.txt");
     }
 }
 
@@ -52,7 +52,7 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
 }
 
 class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
-    final static String LETTERFREQUENCY_FILE_PATH = "letterfrequentie-ENGELS.txt";
+    final static String LETTERFREQUENCY_FILE_PATH = "/media/wouter/Extra/hadoop-2.7.2/letterfrequentie-ENGELS.txt";
     private DictionaryWordPredictor dictionaryWordPredictor = new DictionaryWordPredictor(LETTERFREQUENCY_FILE_PATH);
 
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
