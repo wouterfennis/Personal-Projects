@@ -83,7 +83,8 @@ class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 		if(!isAlphabetLinePrinted){
 			String alphabetLine = "";
 			for(String letter : ALPHABET){
-				alphabetLine = alphabetLine + STANDARD_WHITESPACE + letter;
+				//alphabetLine = alphabetLine + STANDARD_WHITESPACE + letter;
+				alphabetLine = alphabetLine + "," + letter;
 			}
 			context.write(new Text(" "), new Text(alphabetLine));
 			isAlphabetLinePrinted = true;
@@ -101,10 +102,12 @@ class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 		}
 		int totalRowOccurences = 0;
 		for(int occurence : rowOccurences){
-			nextCharactersNumber = nextCharactersNumber + calculateWhitespace(occurence) + occurence;
+			//nextCharactersNumber = nextCharactersNumber + calculateWhitespace(occurence) + occurence;
+			nextCharactersNumber = nextCharactersNumber + "," + occurence;
 			totalRowOccurences = totalRowOccurences + occurence;
 		}
-		nextCharactersNumber = nextCharactersNumber + calculateWhitespace(totalRowOccurences) + "|" + totalRowOccurences;
+		//nextCharactersNumber = nextCharactersNumber + calculateWhitespace(totalRowOccurences) + "|" + totalRowOccurences;
+		nextCharactersNumber = nextCharactersNumber + "," + totalRowOccurences;
 
 
 		context.write(key, new Text(nextCharactersNumber));
@@ -132,9 +135,10 @@ class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 	protected void cleanup(Context context) throws IOException, InterruptedException {
 		String bottomTotals = "";
 		for(int totalBottomOccurence : totalBottomOccurences){
-			bottomTotals = bottomTotals + calculateWhitespace(totalBottomOccurence) + totalBottomOccurence;
+			//bottomTotals = bottomTotals + calculateWhitespace(totalBottomOccurence) + totalBottomOccurence;
+			bottomTotals = bottomTotals + "," + totalBottomOccurence;
 		}
-		context.write(new Text("------"), new Text(bottomTotals.replaceAll(".","-")));
+		//context.write(new Text("------"), new Text(bottomTotals.replaceAll(".","-")));
 		context.write(new Text(" "), new Text(bottomTotals));
 	}
 }

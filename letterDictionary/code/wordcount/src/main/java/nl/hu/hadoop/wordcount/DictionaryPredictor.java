@@ -50,7 +50,7 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
 }
 
 class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
-    final static String LETTERFREQUENCY_FILE_PATH = "";
+    final static String LETTERFREQUENCY_FILE_PATH = "letterfrequentie-ENGELS.txt";
     private DictionaryWordPredictor dictionaryWordPredictor = new DictionaryWordPredictor(LETTERFREQUENCY_FILE_PATH);
 
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
@@ -59,9 +59,10 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
             double wordChance = dictionaryWordPredictor.predict(word.toString());
             correctLineChance = correctLineChance * wordChance;
         }
-        double wordChanceInProcent = correctLineChance * 100;
+        // convert to percentage
+        correctLineChance = correctLineChance * 100;
         
-        context.write(key, new Text(wordChanceInProcent + ""));
+        context.write(key, new Text(correctLineChance + "%"));
     }
 
 /*	@Override
