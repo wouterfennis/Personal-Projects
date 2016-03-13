@@ -59,7 +59,7 @@ public class DictionaryWordPredictor {
         String[] CharactersFromWord = word.split("");
 
         for (int i = 0; i < CharactersFromWord.length; i++) {
-            if (i + 1 <= CharactersFromWord.length) {
+            if (i + 1 < CharactersFromWord.length) {
                 String firstCharacter = CharactersFromWord[i];
                 String nextCharacter = CharactersFromWord[i + 1];
                 int characterIndex = searchForCharacterIndex(nextCharacter);
