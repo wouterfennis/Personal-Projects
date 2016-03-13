@@ -44,7 +44,7 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
         for (String word : words) {
             // first we convert the word to lower case characters
             word = word.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "");
-            context.write(new Text(word), new Text(word));
+            context.write(new Text(value), new Text(word));
         }
     }
 }
@@ -54,11 +54,14 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
     private DictionaryWordPredictor dictionaryWordPredictor = new DictionaryWordPredictor(LETTERFREQUENCY_FILE_PATH);
 
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-
-        double wordChance = dictionaryWordPredictor.predict(key.toString());
-
-        double wordChanceProcent = wordChance * 100;
-        context.write(key, new Text(wordChanceProcent + ""));
+        double correctLineChance = 1;
+        for(Text word : values) {
+            double wordChance = dictionaryWordPredictor.predict(word.toString());
+            correctLineChance = correctLineChance * wordChance;
+        }
+        double wordChanceInProcent = correctLineChance * 100;
+        
+        context.write(key, new Text(wordChanceInProcent + ""));
     }
 
 /*	@Override
