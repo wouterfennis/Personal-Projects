@@ -37,13 +37,15 @@ public class DictionaryPredictor {
 class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
+        //trim more than one whitespace
+        String line = value.toString().trim().replaceAll(" +", " ");
         // retrieve the words from the line
-        String[] words = value.toString().split("\\s");
+        String[] words = line.split("\\s");
 
         for (String word : words) {
             // first we convert the word to lower case characters and replace any non-alphabet characters
             word = word.toLowerCase().replaceAll("[^A-Za-z ]", "");
-            context.write(new Text(value), new Text(word));
+            context.write(new Text(line), new Text(word));
         }
     }
 }
@@ -57,13 +59,16 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
         double sumOfWordPercentage = 0;
 
         for(Text word : values) {
-            double wordPercentage = dictionaryWordPredictor.predict(word.toString());
-            sumOfWordPercentage = sumOfWordPercentage + wordPercentage;
+            double averageWordPercentage = dictionaryWordPredictor.predict(word.toString());
+            sumOfWordPercentage = sumOfWordPercentage + averageWordPercentage;
             numberOfWords++;
         }
         // calculate average percentage for whole sentence
         double averageLinePercentage = sumOfWordPercentage / numberOfWords;
-        
+
+        //round of to two decimals behind comma
+        averageLinePercentage = (double) Math.round(averageLinePercentage * 100) / 100;
+
         context.write(key, new Text(averageLinePercentage + "%"));
     }
 
