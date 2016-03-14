@@ -53,16 +53,18 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
     private DictionaryWordPredictor dictionaryWordPredictor = new DictionaryWordPredictor(LETTERFREQUENCY_FILE_PATH);
 
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-        // correctLineChance starts at 1.0 because if it would be 0.0 then you couldn't multiply it with anything
-        double correctLineChance = 1;
+        int numberOfWords = 0;
+        double sumOfWordPercentage = 0;
+
         for(Text word : values) {
-            double wordChance = dictionaryWordPredictor.predict(word.toString());
-            correctLineChance = correctLineChance * wordChance;
+            double wordPercentage = dictionaryWordPredictor.predict(word.toString());
+            sumOfWordPercentage = sumOfWordPercentage + wordPercentage;
+            numberOfWords++;
         }
-        // convert chance to percentage
-        correctLineChance = correctLineChance * 100;
+        // calculate average percentage for whole sentence
+        double averageLinePercentage = sumOfWordPercentage / numberOfWords;
         
-        context.write(key, new Text(correctLineChance + "%"));
+        context.write(key, new Text(averageLinePercentage + "%"));
     }
 
 /*	@Override

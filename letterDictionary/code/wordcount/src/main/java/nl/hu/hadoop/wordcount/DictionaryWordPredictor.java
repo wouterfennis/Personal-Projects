@@ -79,7 +79,9 @@ public class DictionaryWordPredictor {
                 // the last character of the word has been reached
             }
         }
-        return wordChance;
+        // convert chance to percentage
+        double wordPercentage = wordChance * 100;
+        return wordPercentage;
     }
 
     public Letter searchForLetterObject(char letterCharacter) {
