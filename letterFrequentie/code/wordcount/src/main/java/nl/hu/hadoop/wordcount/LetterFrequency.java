@@ -51,17 +51,20 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 					// retrieve the current character (but still use the string format)
 					String character = word.charAt(i) + "";
 					String nextCharacter = "";
-					if(i == 0){
+					// not using below atm. For declaring that the character is the first in the word
+/*					if(i == 0){
 						context.write(new Text(character), new Text("BEGIN"));
-					}
+					}*/
 
 					// make sure there is a next character
 					if(i + 1 < wordLength ){
 						// we can now safely do '+ 1' without risking 'StringIndexOutOfBounds'
 						nextCharacter = word.charAt(i + 1) + "";
-					} else {
-						nextCharacter = "END";
 					}
+					// not using below atm. For declaring that hte character is the last in the word
+/*					else {
+						nextCharacter = "END";
+					}*/
 
 					context.write(new Text(character), new Text(nextCharacter));
 					// raise the index for the next character
@@ -74,13 +77,13 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
 	private int[] rowOccurences;
-	private int[] totalBottomOccurences = new int[28];
+	private int[] totalBottomOccurences = new int[26];
 	private boolean isAlphabetLinePrinted = false;
-	final static String[] ALPHABET = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","BEGIN","END"};
+	final static String[] ALPHABET = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 	final static String STANDARD_WHITESPACE = "    ";
 
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-		rowOccurences = new int[28];
+		rowOccurences = new int[26];
 		String nextCharactersNumber = "";
 
 		if(!isAlphabetLinePrinted){
