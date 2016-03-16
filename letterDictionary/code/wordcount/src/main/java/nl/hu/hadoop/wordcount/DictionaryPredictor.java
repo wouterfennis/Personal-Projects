@@ -1,6 +1,7 @@
 package main.java.nl.hu.hadoop.wordcount;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.Arrays;
 
 import org.apache.hadoop.fs.Path;
@@ -39,6 +40,7 @@ class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
     public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
         //trim more than one whitespace
         String line = value.toString().trim().replaceAll(" +", " ");
+        line = Normalizer.normalize(line, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
         // retrieve the words from the line
         String[] words = line.split("\\s");
 
