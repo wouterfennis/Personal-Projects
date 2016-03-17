@@ -56,22 +56,23 @@ public class DictionaryWordPredictor {
         return letters;
     }
 
-    public double predict(String word) {
+    // average predict method
+/*    public double predict(String word) {
         // wordChance starts at 1.0 because if it would be 0.0 then you couldn't multiply it with anything
         double sumOfLetterChance = 0;
-/*        System.out.println("word");
-        System.out.println(word);*/
+*//*        System.out.println("word");
+        System.out.println(word);*//*
         for (int i = 0; i < word.length(); i++) {
             if (i + 1 < word.length()) {
                 char firstCharacter = word.charAt(i);
                 char nextCharacter = word.charAt(i + 1);
-/*                System.out.println("firstCharacter");
+*//*                System.out.println("firstCharacter");
                 System.out.println(firstCharacter);
                 System.out.println("nextCharacter");
-                System.out.println(nextCharacter);*/
+                System.out.println(nextCharacter);*//*
                 int characterIndex = searchForCharacterIndex(nextCharacter);
-/*                System.out.println("characterIndex");
-                System.out.println(characterIndex);*/
+*//*                System.out.println("characterIndex");
+                System.out.println(characterIndex);*//*
                 Letter letter = searchForLetterObject(firstCharacter);
                 double letterChance = letter.calculateFollowingLetterChance(characterIndex);
                 sumOfLetterChance = sumOfLetterChance + letterChance;
@@ -82,10 +83,10 @@ public class DictionaryWordPredictor {
         // convert chance to percentage
         double averageWordPercentage = (sumOfLetterChance / word.length()) * 100;
         return averageWordPercentage;
-    }
+    }*/
 
     //multiplying predict method
-/*    public double predict(String word) {
+    public double predict(String word) {
         // wordChance starts at 1.0 because if it would be 0.0 then you couldn't multiply it with anything
         double wordChance = 1.0;
         System.out.println("word");
@@ -111,7 +112,7 @@ public class DictionaryWordPredictor {
         // convert chance to percentage
         double wordPercentage = wordChance * 100;
         return wordPercentage;
-    }*/
+    }
 
     public Letter searchForLetterObject(char letterCharacter) {
         Letter wantedLetter = null;

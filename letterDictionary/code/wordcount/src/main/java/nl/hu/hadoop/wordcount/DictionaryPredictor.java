@@ -38,15 +38,15 @@ public class DictionaryPredictor {
 class DictionaryPredictorMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
-        //trim more than one whitespace
+        //convert line to readable characters
         String line = value.toString().trim().replaceAll(" +", " ");
         line = Normalizer.normalize(line, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+        line = line.toLowerCase().replaceAll("[^A-Za-z ]", "");
         // retrieve the words from the line
         String[] words = line.split("\\s");
 
         for (String word : words) {
             // first we convert the word to lower case characters and replace any non-alphabet characters
-            word = word.toLowerCase().replaceAll("[^A-Za-z ]", "");
             context.write(new Text(line), new Text(word));
         }
     }

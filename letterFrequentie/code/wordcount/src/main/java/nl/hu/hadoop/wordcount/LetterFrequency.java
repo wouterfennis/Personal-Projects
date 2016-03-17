@@ -1,7 +1,11 @@
 package main.java.nl.hu.hadoop.wordcount;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
@@ -37,114 +41,46 @@ class LetterFrequencyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException {
 		// retrieve the words from the line
-		String[]words = value.toString().split("\\s");
+		String[]persons = value.toString().split("\\,");
 
-			// loop through all the words
-			for (String word : words) {
-				// first we convert the word to lower case characters
-				word = word.toLowerCase().replaceAll("[^A-Za-z0-9 ]","");
-				// loop through every char of the word
-				int i = 0;
-				int wordLength = word.length();
-				while(i < wordLength){
+		String mainPerson = persons[0];
+		ArrayList<String> friendsOfMainPerson = new ArrayList<String>();
 
-					// retrieve the current character (but still use the string format)
-					String character = word.charAt(i) + "";
-					String nextCharacter = "";
-					// not using below atm. For declaring that the character is the first in the word
-/*					if(i == 0){
-						context.write(new Text(character), new Text("BEGIN"));
-					}*/
-
-					// make sure there is a next character
-					if(i + 1 < wordLength ){
-						// we can now safely do '+ 1' without risking 'StringIndexOutOfBounds'
-						nextCharacter = word.charAt(i + 1) + "";
-					}
-					// not using below atm. For declaring that hte character is the last in the word
-/*					else {
-						nextCharacter = "END";
-					}*/
-
-					context.write(new Text(character), new Text(nextCharacter));
-					// raise the index for the next character
-					i++;
-
-				}
+		for(int i = 1; i < persons.length; i++){
+			context.write(new Text(mainPerson), new Text(persons[i]));
 		}
 	}
 }
 
-class LetterFrequencyReducer extends Reducer<Text, Text, Text, Text> {
-	private int[] rowOccurences;
-	private int[] totalBottomOccurences = new int[26];
-	private boolean isAlphabetLinePrinted = false;
-	final static String[] ALPHABET = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
-	final static String STANDARD_WHITESPACE = "    ";
+class LetterFrequencyReducer extends Reducer<Text, Text, Text, ArrayWritable> {
+	private HashMap personsWithFriends = new HashMap();
 
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-		rowOccurences = new int[26];
-		String nextCharactersNumber = "";
 
-		if(!isAlphabetLinePrinted){
-			String alphabetLine = "";
-			for(String letter : ALPHABET){
-				//alphabetLine = alphabetLine + STANDARD_WHITESPACE + letter;
-				alphabetLine = alphabetLine + "," + letter;
+		String mainPerson = key.toString();
+		ArrayList<String> friendsOfMainPerson = new ArrayList<String>();
+		for(Text friendOfMainPerson : values){
+			friendsOfMainPerson.add(friendOfMainPerson.toString());
+		}
+
+		if(!personsWithFriends.containsKey(mainPerson)){
+			personsWithFriends.put(mainPerson, friendsOfMainPerson);
+		}
+
+		for(String friend : friendsOfMainPerson){
+			ArrayList<String> commonFriends = new ArrayList<String>();
+			if(personsWithFriends.containsKey(friend)){
+				//friend is aanwezig
+				ArrayList<String> friendsOfFriend = (ArrayList<String>)personsWithFriends.get(friend);
+				for(String friendOfFriend : friendsOfFriend){
+					if(friendsOfMainPerson.contains(friendOfFriend)){
+						commonFriends.add(friendOfFriend);
+					}
+				}
+				context.write(new Text(mainPerson + "|" + friend), new ArrayWritable((String[])commonFriends.toArray()));
+			} else {
+				// friend is niet aanwezig
 			}
-			context.write(new Text(" "), new Text(alphabetLine));
-			isAlphabetLinePrinted = true;
 		}
-
-		for (Text letter : values) {
-			int index = Arrays.asList(ALPHABET).indexOf(letter.toString());
-			// if the character is not found the index will be '-1'
-			if(index != -1){
-				// increment the value at the right index
-				rowOccurences[index] = rowOccurences[index] + 1;
-				totalBottomOccurences[index] = totalBottomOccurences[index] + 1;
-			}
-
-		}
-		int totalRowOccurences = 0;
-		for(int occurence : rowOccurences){
-			//nextCharactersNumber = nextCharactersNumber + calculateWhitespace(occurence) + occurence;
-			nextCharactersNumber = nextCharactersNumber + "," + occurence;
-			totalRowOccurences = totalRowOccurences + occurence;
-		}
-		//nextCharactersNumber = nextCharactersNumber + calculateWhitespace(totalRowOccurences) + "|" + totalRowOccurences;
-		nextCharactersNumber = nextCharactersNumber + "," + totalRowOccurences;
-
-
-		context.write(key, new Text(nextCharactersNumber));
-	}
-
-	public String calculateWhitespace(int number){
-		String whitespace = "";
-		if(number < 10){
-			// 4 whitespace
-			whitespace = STANDARD_WHITESPACE;
-		} else if (number < 100){
-			// 3 whitespace
-			whitespace = "   ";
-		} else if (number < 1000){
-			// 2 whitespace
-			whitespace = "  ";
-		} else if (number < 10000){
-			// 1 whitespace
-			whitespace = " ";
-		}
-		return whitespace;
-	}
-
-	@Override
-	protected void cleanup(Context context) throws IOException, InterruptedException {
-		String bottomTotals = "";
-		for(int totalBottomOccurence : totalBottomOccurences){
-			//bottomTotals = bottomTotals + calculateWhitespace(totalBottomOccurence) + totalBottomOccurence;
-			bottomTotals = bottomTotals + "," + totalBottomOccurence;
-		}
-		//context.write(new Text("------"), new Text(bottomTotals.replaceAll(".","-")));
-		context.write(new Text(" "), new Text(bottomTotals));
-	}
+}
 }
