@@ -61,8 +61,8 @@ class DictionaryPredictorReducer extends Reducer<Text, Text, Text, Text> {
         double sumOfWordPercentage = 0;
 
         for(Text word : values) {
-            double averageWordPercentage = dictionaryWordPredictor.predict(word.toString());
-            sumOfWordPercentage = sumOfWordPercentage + averageWordPercentage;
+            double wordPercentage = dictionaryWordPredictor.predict(word.toString());
+            sumOfWordPercentage = sumOfWordPercentage + wordPercentage;
             numberOfWords++;
         }
         // calculate average percentage for whole sentence
